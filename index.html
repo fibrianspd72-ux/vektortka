@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <!-- STREAMING_CHUNK:Configuring meta tags, Tailwind CSS, and MathJax dependencies... -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Interaktif Vektor SMA - Ceria & Fun</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- MathJax for rendering LaTeX math formulas -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* STREAMING_CHUNK:Defining custom animations, gradients and typography... */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #fbcfe8 100%);
+    }
+
+    /* Custom Glassmorphism Styles */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* Fun Animations */
+    @keyframes bounce-slow {
+      0%, 100% { transform: translateY(-3%); }
+      50% { transform: translateY(0); }
+    }
+    .animate-bounce-slow {
+      animation: bounce-slow 3s infinite ease-in-out;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.35);
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #FF5252 0%, #FF7A3D 100%);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.45);
+    }
+
+    /* Radio button custom style */
+    .option-card {
+      transition: all 0.2s ease-in-out;
+    }
+    .option-card:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 antialiased selection:bg-pink-300 selection:text-pink-900">
+
+  <!-- STREAMING_CHUNK:Rendering Persistent Top Navigation Bar for Student Identity... -->
+  <!-- HEADER BAR (Selalu Tampak Setelah Identitas Diisi) -->
+  <header id="header-bar" class="hidden sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b-2 border-pink-200 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Identitas Siswa Kiri Atas -->
+      <div class="flex items-center space-x-3 bg-pink-50 border border-pink-200 px-3.5 py-1.5 rounded-full shadow-inner">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-400 flex items-center justify-center text-white font-black text-sm shadow">
+          🎓
+        </div>
+        <div>
+          <div class="text-xs text-pink-500 font-bold uppercase tracking-wider">Siswa SMA</div>
+          <div id="display-student-name" class="font-extrabold text-slate-800 text-sm md:text-base leading-tight">
+            Nama Siswa
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge Progres Kuis -->
+      <div class="flex items-center space-x-2">
+        <span class="text-xs md:text-sm font-bold text-slate-500 hidden sm:inline">Progres:</span>
+        <span id="question-progress-badge" class="px-3.5 py-1 bg-indigo-600 text-white font-extrabold rounded-full text-xs md:text-sm shadow-md">
+          Soal 1 / 10
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTAINER UTAMA -->
+  <main class="flex-grow flex items-center justify-center p-4 md:p-6">
+
+    <!-- STREAMING_CHUNK:Building Halaman 1 - Form Input Identitas Siswa... -->
+    <!-- 1. HALAMAN INPUT IDENTITAS -->
+    <div id="identity-screen" class="w-full max-w-lg glass-card rounded-3xl shadow-2xl p-6 md:p-8 border-4 border-white my-auto relative overflow-hidden">
+      <!-- Decorative Ornaments -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-300 rounded-full blur-2xl opacity-50"></div>
+      <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-pink-300 rounded-full blur-2xl opacity-50"></div>
+
+      <div class="relative text-center mb-8">
+        <div class="inline-block p-4 bg-yellow-100 rounded-3xl text-4xl mb-3 shadow-sm animate-bounce-slow">
+          📐✨
+        </div>
+        <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
+          Kuis Matematika Asyik!
+        </h1>
+        <p class="text-sm font-semibold text-slate-500 mt-1">
+          Materi: Vektor (Kelas XI/XII SMA)
+        </p>
+      </div>
+
+      <form id="identity-form" onsubmit="startQuiz(event)" class="relative space-y-5">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+            Nama Lengkap Kamu
+          </label>
+          <input type="text" id="input-name" required placeholder="Contoh: Sarah Az-Zahra"
+            class="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 font-bold text-slate-700 outline-none transition-all placeholder:font-normal">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+            Kelas / Jurusan
+          </label>
+          <input type="text" id="input-class" required placeholder="Contoh: XI MIPA 2"
+            class="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 font-bold text-slate-700 outline-none transition-all placeholder:font-normal">
+        </div>
+
+        <button type="submit"
+          class="w-full py-4 btn-gradient text-white font-extrabold rounded-2xl text-base tracking-wide transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center space-x-2">
+          <span>MULAI KERJAKAN SOAL</span>
+          <span class="text-xl">🚀</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- STREAMING_CHUNK:Building Halaman 2 - Tampilan Lembar Kuis & Soal... -->
+    <!-- 2. HALAMAN SOAL KUIS -->
+    <div id="quiz-screen" class="hidden w-full max-w-3xl glass-card rounded-3xl shadow-2xl p-5 md:p-8 my-auto border-4 border-white">
+      
+      <!-- Top Meta Info -->
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+        <span class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Soal Pilihan Ganda
+        </span>
+        <span id="question-number-text" class="text-xs md:text-sm font-extrabold text-slate-400">
+          Nomor 1 dari 10
+        </span>
+      </div>
+
+      <!-- Teks Pernyataan / Pertanyaan Soal -->
+      <div id="question-text" class="text-base md:text-lg font-bold text-slate-800 mb-6 leading-relaxed bg-white/60 p-4 rounded-2xl border border-white">
+        <!-- MathJax LaTeX Question Body Loaded Here -->
+      </div>
+
+      <!-- Visual Ilustrasi Tambahan (Opsional bila ada gambar kereta/vektor) -->
+      <div id="question-image-container" class="hidden mb-6 text-center">
+        <!-- SVG / Canvas Diagram Interaktif -->
+      </div>
+
+      <!-- Opsi Jawaban Pilihan Ganda -->
+      <div id="options-container" class="space-y-3 mb-6">
+        <!-- Pilihan Opsi Dimuat Dinamis via JavaScript -->
+      </div>
+
+      <!-- Box Pembahasan / Feedback (Tampil pasca dijawab) -->
+      <div id="feedback-box" class="hidden p-4 md:p-5 rounded-2xl mb-6 text-sm font-medium transition-all animate-fade-in">
+        <p id="feedback-title" class="font-bold text-base mb-1 flex items-center"></p>
+        <div id="feedback-explanation" class="text-slate-700 leading-relaxed overflow-x-auto"></div>
+      </div>
+
+      <!-- Tombol Navigasi Lanjut -->
+      <div class="flex justify-end pt-2">
+        <button id="next-btn" onclick="nextQuestion()" disabled
+          class="w-full sm:w-auto px-8 py-3.5 bg-slate-200 text-slate-400 font-extrabold rounded-2xl cursor-not-allowed transition-all flex items-center justify-center space-x-2">
+          <span>Soal Berikutnya</span>
+          <span>➔</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STREAMING_CHUNK:Building Halaman 3 - Halaman Skor dan Rangkuman Hasil... -->
+    <!-- 3. HALAMAN HASIL / RANGKUMAN SKOR -->
+    <div id="result-screen" class="hidden w-full max-w-lg glass-card rounded-3xl shadow-2xl p-6 md:p-8 my-auto border-4 border-white text-center relative">
+      
+      <div class="inline-block p-4 bg-yellow-100 rounded-full text-5xl mb-3 shadow-md animate-bounce-slow">
+        🏆
+      </div>
+
+      <h2 class="text-2xl md:text-3xl font-black text-slate-800">
+        Hasil Kuis Kamu!
+      </h2>
+      <p id="result-student-info" class="text-sm font-bold text-pink-600 mt-1 mb-6">
+        Nama Siswa (Kelas)
+      </p>
+
+      <!-- Kartu Skor Utama -->
+      <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-3xl p-6 mb-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-lg"></div>
+        <p class="text-xs uppercase tracking-widest font-extrabold text-indigo-200 mb-1">
+          NILAI AKHIR
+        </p>
+        <div id="score-text" class="text-6xl font-black my-1 drop-shadow-md">
+          0
+        </div>
+        <p id="score-message" class="text-xs md:text-sm font-bold text-indigo-100 mt-2">
+          Pesan Semangat!
+        </p>
+      </div>
+
+      <!-- Statistik Jawaban -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-emerald-50 border-2 border-emerald-200 p-3.5 rounded-2xl">
+          <p class="text-xs font-bold text-emerald-600 uppercase">Jawaban Benar</p>
+          <p id="correct-count" class="text-2xl font-black text-emerald-700">0</p>
+        </div>
+        <div class="bg-rose-50 border-2 border-rose-200 p-3.5 rounded-2xl">
+          <p class="text-xs font-bold text-rose-600 uppercase">Jawaban Salah</p>
+          <p id="wrong-count" class="text-2xl font-black text-rose-700">0</p>
+        </div>
+      </div>
+
+      <button onclick="restartQuiz()"
+        class="w-full py-4 btn-gradient text-white font-extrabold rounded-2xl shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center space-x-2">
+        <span>COBA KUIS LAGI</span>
+        <span class="text-xl">🔄</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="text-center py-4 text-xs font-bold text-slate-500">
+    Kuis Interaktif Vektor SMA • Didesain Ceria & Edukatif ✨
+  </footer>
+
+  <!-- STREAMING_CHUNK:Initializing JavaScript logic for state management and MathJax rendering... -->
+  <script>
+    // Data 10 Soal Vektor (Disesuaikan persis dengan gambar sampel yang diunggah)
+    const quizData = [
+      {
+        question: "1. Diketahui vektor $\\vec{AB} = \\begin{pmatrix} 2m \\\\ m+3 \\\\ m \\end{pmatrix}$. Jika nilai/panjang vektor $\vert{}\\vec{AB}\vert{} = 9$ satuan panjang, maka nilai $m$ yang memenuhi vektor $\\vec{AB}$ adalah...",
+        options: [
+          "-4 atau -3",
+          "-4 atau 3",
+          "-3 atau 4",
+          "3 atau 4"
+        ],
+        correct: 1, // -4 atau 3
+        explanation: "Gunakan rumus panjang vektor: $\\sqrt{(2m)^2 + (m+3)^2 + m^2} = 9$. Kuadratkan kedua ruas: $4m^2 + (m^2 + 6m + 9) + m^2 = 81 \\implies 6m^2 + 6m - 72 = 0 \\implies m^2 + m - 12 = 0 \\implies (m+4)(m-3) = 0$. Jadi $m = -4$ atau $m = 3$."
+      },
+      {
+        question: "2. Diketahui trapesium sama kaki $ABCD$ dengan $AD = BC$ dan titik $A(0,0)$. Vektor-vektor posisi pembentuk trapesium adalah $\\vec{AD} = \\begin{pmatrix} 1 \\\\ 4 \\end{pmatrix}$, $\\vec{AB} = \\begin{pmatrix} 6 \\\\ 0 \\end{pmatrix}$, dan $\\vec{BC} = \\begin{pmatrix} a \\\\ b \\end{pmatrix}$. Nilai dari $a^2 + 2b = ...$",
+        options: [
+          "5",
+          "7",
+          "9",
+          "10",
+          "13"
+        ],
+        correct: 2, // 9
+        explanation: "Karena trapesium sama kaki dan alurnya sejelas sumbu horizontal, tinggi komponen-y titik $C$ dan $D$ sama, maka $b = 4$. Panjang $\vert{}\\vec{AD}\vert{} = \\sqrt{1^2 + 4^2} = \\sqrt{17}$. Karena $AD = BC$, maka $\vert{}\\vec{BC}\vert{} = \\sqrt{a^2 + 4^2} = \\sqrt{17} \\implies a^2 = 1$. Sehingga $a^2 + 2b = 1 + 2(4) = 9$."
+      },
+      {
+        question: "3. Sebuah kereta api melaju konstan dari stasiun A $(2,3,5)$ ke stasiun E $(11,6,8)$. Waktu tempuh antar stasiun: A-B (5 menit), B-C (3 menit), C-D (2 menit), D-E (3 menit). Pasangan stasiun yang jaraknya **kurang dari 3,5 km** adalah...",
+        options: [
+          "Stasiun A dan B",
+          "Stasiun B dan C",
+          "Stasiun C dan D",
+          "Stasiun D dan E"
+        ],
+        correct: 2, // CD
+        explanation: "Jarak total $AE = \\sqrt{(11-2)^2 + (6-3)^2 + (8-5)^2} = \\sqrt{81+9+9} = \\sqrt{99} \\approx 9,95$ km. Total waktu = $5+3+2+3 = 13$ menit. Jarak stasiun C-D (2 menit) $= \\frac{2}{13} \\times 9,95 \\approx 1,53$ km (Di bawah 3,5 km)."
+      },
+      {
+        question: "4. Diketahui vektor $\\vec{u} = 2\\hat{i} - \\hat{j} + 3\\hat{k}$ dan $\\vec{v} = \\hat{i} + 3\\hat{j} - 2\\hat{k}$. Panjang dari vektor $(\\vec{u} + \\vec{v})$ adalah...",
+        options: [
+          "$\\sqrt{14}$",
+          "$\\sqrt{17}$",
+          "$\\sqrt{21}$",
+          "$\\sqrt{29}$"
+        ],
+        correct: 0,
+        explanation: "$\\vec{u} + \\vec{v} = (2+1)\\hat{i} + (-1+3)\\hat{j} + (3-2)\\hat{k} = 3\\hat{i} + 2\\hat{j} + \\hat{k}$. Panjangnya $= \\sqrt{3^2 + 2^2 + 1^2} = \\sqrt{9+4+1} = \\sqrt{14}$."
+      },
+      {
+        question: "5. Diketahui koordinat titik $P(1, -2, 4)$ dan $Q(4, 2, -1)$. Vektor posisi $\\vec{PQ}$ dapat dinyatakan sebagai...",
+        options: [
+          "$3\\hat{i} + 4\\hat{j} - 5\\hat{k}$",
+          "$-3\\hat{i} - 4\\hat{j} + 5\\hat{k}$",
+          "$5\\hat{i} + 4\\hat{j} - 3\\hat{k}$",
+          "$3\\hat{i} - 4\\hat{j} - 5\\hat{k}$"
+        ],
+        correct: 0,
+        explanation: "$\\vec{PQ} = Q - P = (4-1)\\hat{i} + (2 - (-2))\\hat{j} + (-1-4)\\hat{k} = 3\\hat{i} + 4\\hat{j} - 5\\hat{k}$."
+      },
+      {
+        question: "6. Jika vektor $\\vec{a} = \\begin{pmatrix} x \\\\ 2 \\end{pmatrix}$ dan $\\vec{b} = \\begin{pmatrix} 4 \\\\ 3 \\end{pmatrix}$ saling **tegak lurus**, maka nilai $x$ adalah...",
+        options: [
+          "$-1,5$",
+          "$-2$",
+          "$1,5$",
+          "$2$"
+        ],
+        correct: 0,
+        explanation: "Vektor saling tegak lurus jika perkalian titiknya nol $(\\vec{a} \\cdot \\vec{b} = 0) \\implies 4x + (2)(3) = 0 \\implies 4x = -6 \\implies x = -1,5$."
+      },
+      {
+        question: "7. Diketahui $\\vec{a} = 3\\hat{i} + 4\\hat{j}$. Panjang proyeksi skalar vektor $\\vec{a}$ pada $\\vec{b} = 4\\hat{i} + 3\\hat{j}$ adalah...",
+        options: [
+          "3,5",
+          "4,0",
+          "4,8",
+          "5,0"
+        ],
+        correct: 2,
+        explanation: "Proyeksi skalar $= \\frac{\\vec{a} \\cdot \\vec{b}}{\vert{}\\vec{b}\vert{}} = \\frac{(3)(4) + (4)(3)}{\\sqrt{4^2+3^2}} = \\frac{12+12}{5} = \\frac{24}{5} = 4,8$."
+      },
+      {
+        question: "8. Jika $\\vec{a} = \\begin{pmatrix} 2 \\\\ -1 \\end{pmatrix}$ dan $\\vec{b} = \\begin{pmatrix} -3 \\\\ 4 \\end{pmatrix}$, maka nilai dari $\vert{}2\\vec{a} - \\vec{b}\vert{}$ adalah...",
+        options: [
+          "$\\sqrt{85}$",
+          "$\\sqrt{65}$",
+          "$7$",
+          "$9$"
+        ],
+        correct: 0,
+        explanation: "$2\\vec{a} - \\vec{b} = \\begin{pmatrix} 4 \\\\ -2 \\end{pmatrix} - \\begin{pmatrix} -3 \\\\ 4 \\end{pmatrix} = \\begin{pmatrix} 7 \\\\ -6 \\end{pmatrix}$. Panjangnya $= \\sqrt{7^2 + (-6)^2} = \\sqrt{49+36} = \\sqrt{85}$."
+      },
+      {
+        question: "9. Titik $A(2, 3)$ dan $B(8, 9)$. Jika titik $P$ membagi ruas garis $AB$ dengan perbandingan $AP : PB = 1 : 2$, koordinat titik $P$ adalah...",
+        options: [
+          "$(4, 5)$",
+          "$(5, 6)$",
+          "$(3, 4)$",
+          "$(6, 7)$"
+        ],
+        correct: 0,
+        explanation: "$P = \\frac{1(B) + 2(A)}{1+2} = \\frac{(8,9) + (4,6)}{3} = \\frac{(12,15)}{3} = (4, 5)$."
+      },
+      {
+        question: "10. Besar sudut antara vektor $\\vec{a} = \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix}$ dan $\\vec{b} = \\begin{pmatrix} 0 \\\\ 2 \\end{pmatrix}$ adalah...",
+        options: [
+          "$30^\\circ$",
+          "$45^\\circ$",
+          "$60^\\circ$",
+          "$90^\\circ$"
+        ],
+        correct: 1,
+        explanation: "$\\cos \\theta = \\frac{\\vec{a} \\cdot \\vec{b}}{\vert{}\\vec{a}\vert{}\vert{}\\vec{b}\vert{}} = \\frac{(1)(0) + (1)(2)}{\\sqrt{2} \\cdot 2} = \\frac{2}{2\\sqrt{2}} = \\frac{1}{\\sqrt{2}} = \\frac{1}{2}\\sqrt{2} \\implies \\theta = 45^\\circ$."
+      }
+    ];
+
+    // State Aplikasi
+    let currentQuestion = 0;
+    let score = 0;
+    let studentName = "";
+    let studentClass = "";
+
+    // STREAMING_CHUNK:Handling form submission & transition to Quiz View...
+    function startQuiz(e) {
+      e.preventDefault();
+      studentName = document.getElementById('input-name').value.trim();
+      studentClass = document.getElementById('input-class').value.trim();
+
+      if(!studentName || !studentClass) return;
+
+      // Pasang Identitas di Header Kiri Atas
+      document.getElementById('display-student-name').innerText = `${studentName} (${studentClass})`;
+
+      // Sembunyikan Form Identitas, Tampilkan Header & Lembar Soal
+      document.getElementById('identity-screen').classList.add('hidden');
+      document.getElementById('header-bar').classList.remove('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+
+      loadQuestion();
+    }
+
+    // STREAMING_CHUNK:Loading question content and options dynamically...
+    function loadQuestion() {
+      const data = quizData[currentQuestion];
+
+      // Update Progres & Nomor Soal
+      document.getElementById('question-number-text').innerText = `Nomor ${currentQuestion + 1} dari ${quizData.length}`;
+      document.getElementById('question-progress-badge').innerText = `Soal ${currentQuestion + 1} / ${quizData.length}`;
+      
+      // Load Teks Soal
+      document.getElementById('question-text').innerHTML = data.question;
+
+      // Load Opsi Pilihan Jawaban
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      data.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "option-card w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-pink-400 hover:bg-pink-50 font-bold text-slate-700 flex items-center justify-between group shadow-sm";
+        btn.onclick = () => selectOption(idx);
+
+        btn.innerHTML = `
+          <div class="flex items-center space-x-3.5">
+            <span class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-pink-500 group-hover:text-white text-slate-600 font-extrabold flex items-center justify-center text-sm transition-all">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm md:text-base">${opt}</span>
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+
+      // Sembunyikan feedback
+      document.getElementById('feedback-box').classList.add('hidden');
+
+      // Reset tombol navigasi
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.disabled = true;
+      nextBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-slate-200 text-slate-400 font-extrabold rounded-2xl cursor-not-allowed transition-all flex items-center justify-center space-x-2";
+
+      // Render ulang formula MathJax
+      if (window.MathJax) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    // STREAMING_CHUNK:Evaluating option selection and revealing explanations...
+    function selectOption(selectedIndex) {
+      const data = quizData[currentQuestion];
+      const container = document.getElementById('options-container');
+      const buttons = container.children;
+
+      // Nonaktifkan seluruh pilihan opsi
+      for (let btn of buttons) {
+        btn.disabled = true;
+        btn.classList.remove('hover:border-pink-400', 'hover:bg-pink-50', 'option-card');
+      }
+
+      // Evaluasi Jawaban
+      if (selectedIndex === data.correct) {
+        buttons[selectedIndex].className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-800 flex items-center justify-between shadow-sm";
+        showFeedback(true, data.explanation);
+        score += 10;
+      } else {
+        buttons[selectedIndex].className = "w-full text-left p-4 rounded-2xl border-2 border-rose-500 bg-rose-50 font-bold text-rose-800 flex items-center justify-between shadow-sm";
+        buttons[data.correct].className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-800 flex items-center justify-between shadow-sm";
+        showFeedback(false, data.explanation);
+      }
+
+      // Aktifkan Tombol Lanjut
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.disabled = false;
+      nextBtn.className = "w-full sm:w-auto px-8 py-3.5 btn-gradient text-white font-extrabold rounded-2xl shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center space-x-2";
+
+      if (currentQuestion === quizData.length - 1) {
+        nextBtn.innerHTML = "<span>Selesai & Lihat Skor</span> 🏆";
+      } else {
+        nextBtn.innerHTML = "<span>Soal Berikutnya</span> ➔";
+      }
+
+      if (window.MathJax) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    // Tampilkan Ulasan Feedback
+    function showFeedback(isCorrect, explanation) {
+      const box = document.getElementById('feedback-box');
+      const title = document.getElementById('feedback-title');
+      const exp = document.getElementById('feedback-explanation');
+
+      box.classList.remove('hidden', 'bg-emerald-100', 'bg-rose-100', 'border-emerald-300', 'border-rose-300');
+
+      if (isCorrect) {
+        box.classList.add('bg-emerald-100', 'border', 'border-emerald-300');
+        title.className = "font-bold text-base mb-1 text-emerald-900";
+        title.innerHTML = "🎉 <span class='ml-1.5'>Jawaban Kamu Tepat Sekali!</span>";
+      } else {
+        box.classList.add('bg-rose-100', 'border', 'border-rose-300');
+        title.className = "font-bold text-base mb-1 text-rose-900";
+        title.innerHTML = "❌ <span class='ml-1.5'>Ups, Kurang Tepat!</span>";
+      }
+
+      exp.innerHTML = `<b>Pembahasan:</b> ${explanation}`;
+    }
+
+    // Ke Soal Berikutnya / Hasil
+    function nextQuestion() {
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    // STREAMING_CHUNK:Rendering score summary and evaluation message...
+    function showResults() {
+      document.getElementById('quiz-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+
+      document.getElementById('result-student-info').innerText = `${studentName} • ${studentClass}`;
+      document.getElementById('score-text').innerText = score;
+
+      const correctNum = score / 10;
+      const wrongNum = quizData.length - correctNum;
+
+      document.getElementById('correct-count').innerText = correctNum;
+      document.getElementById('wrong-count').innerText = wrongNum;
+
+      const msg = document.getElementById('score-message');
+      if (score >= 80) {
+        msg.innerText = "🔥 Luar biasa! Kamu sudah sangat menguasai materi Vektor!";
+      } else if (score >= 60) {
+        msg.innerText = "👍 Bagus! Terus berlatih agar makin paham!";
+      } else {
+        msg.innerText = "💪 Jangan berkecil hati, pelajari lagi pembahasannya ya!";
+      }
+    }
+
+    // Ulangi Kuis dari Awal
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('quiz-screen').classList.remove('hidden');
+
+      loadQuestion();
+    }
+  </script>
+</body>
+</html>
+```eof
